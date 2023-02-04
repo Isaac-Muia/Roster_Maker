@@ -1,4 +1,0 @@
-Driver
-In-Store
-Shift-Runner
-Manager
