@@ -448,6 +448,29 @@ namespace Roster_Test
 
         }
 
+        ///Remove position
+        private void listBox3_DoubleClick(object sender, MouseEventArgs e)
+        {
+            int index = this.listBox3.IndexFromPoint(e.Location);
+            if (index != System.Windows.Forms.ListBox.NoMatches)
+            {
+                position.Items.Remove(listBox3.SelectedItem);
+                positions.Remove((string)listBox3.SelectedItem);
+
+                //Remove position from positions file
+                string[] saved_positions = File.ReadAllLines(saved_files_path + "positions.txt");
+                File.WriteAllText(saved_files_path + "positions.txt", "");
+                foreach (string saved_position in saved_positions)
+                {
+                    if (saved_position != (string)listBox3.SelectedItem)
+                    {
+                        write_data(saved_files_path + "positions.txt", saved_position);
+                    }
+                }
+                listBox3.Items.Remove(listBox3.SelectedItem);
+            }
+        }
+
         public void assign(string day)
         {
             ListBox roster;
@@ -719,15 +742,6 @@ namespace Roster_Test
             return (output);
         }
 
-        ///Remove position
-        private void listBox3_DoubleClick(object sender, MouseEventArgs e)
-        {
-            int index = this.listBox3.IndexFromPoint(e.Location);
-            if (index != System.Windows.Forms.ListBox.NoMatches)
-            {
-                listBox3.Items.Remove(listBox3.SelectedItem);
-                
-            }
-        }
+        
     }
 }
