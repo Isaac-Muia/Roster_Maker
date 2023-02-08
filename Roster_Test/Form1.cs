@@ -1,3 +1,6 @@
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using System.Windows.Forms;
+
 namespace Roster_Test
 {
     public partial class Form1 : Form
@@ -20,7 +23,40 @@ namespace Roster_Test
         public Form1()
         {
             InitializeComponent();
+            ///Event handler for deleting positions of position ListBox
             listBox3.MouseDoubleClick += new MouseEventHandler(listBox3_DoubleClick);
+
+            monday_roster.AllowDrop = true;
+            tuesday_roster.AllowDrop = true;
+            wednesday_roster.AllowDrop = true;
+            thursday_roster.AllowDrop = true;
+            friday_roster.AllowDrop = true;
+            saturday_roster.AllowDrop = true;
+            sunday_roster.AllowDrop = true;
+
+            ///Event handlers for rearanging daily rosters by draging shifts
+            monday_roster.MouseDown += new MouseEventHandler(roster_MouseDown);
+            monday_roster.DragDrop += new DragEventHandler(roster_DragDrop);
+            monday_roster.DragOver += new DragEventHandler(roster_DragOver);
+            tuesday_roster.MouseDown += new MouseEventHandler(roster_MouseDown);
+            tuesday_roster.DragDrop += new DragEventHandler(roster_DragDrop);
+            tuesday_roster.DragOver += new DragEventHandler(roster_DragOver);
+            wednesday_roster.MouseDown += new MouseEventHandler(roster_MouseDown);
+            wednesday_roster.DragDrop += new DragEventHandler(roster_DragDrop);
+            wednesday_roster.DragOver += new DragEventHandler(roster_DragOver);
+            thursday_roster.MouseDown += new MouseEventHandler(roster_MouseDown);
+            thursday_roster.DragDrop += new DragEventHandler(roster_DragDrop);
+            thursday_roster.DragOver += new DragEventHandler(roster_DragOver);
+            friday_roster.MouseDown += new MouseEventHandler(roster_MouseDown);
+            friday_roster.DragDrop += new DragEventHandler(roster_DragDrop);
+            friday_roster.DragOver += new DragEventHandler(roster_DragOver);
+            saturday_roster.MouseDown += new MouseEventHandler(roster_MouseDown);
+            saturday_roster.DragDrop += new DragEventHandler(roster_DragDrop);
+            saturday_roster.DragOver += new DragEventHandler(roster_DragOver);
+            sunday_roster.MouseDown += new MouseEventHandler(roster_MouseDown);
+            sunday_roster.DragDrop += new DragEventHandler(roster_DragDrop);
+            sunday_roster.DragOver += new DragEventHandler(roster_DragOver);
+
             if (!Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "\\RosterMaker"))
             {
                 Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "\\RosterMaker");
@@ -452,7 +488,13 @@ namespace Roster_Test
         private void listBox3_DoubleClick(object sender, MouseEventArgs e)
         {
             int index = this.listBox3.IndexFromPoint(e.Location);
-            if (index != System.Windows.Forms.ListBox.NoMatches)
+            MessageBoxButtons buttons = MessageBoxButtons.YesNo;
+            DialogResult result;
+
+            // Displays the MessageBox.
+            result = MessageBox.Show("Do you want to remove " + listBox3.SelectedItem.ToString() + " from positions?", "Alert", buttons);
+
+            if (index != System.Windows.Forms.ListBox.NoMatches & result == System.Windows.Forms.DialogResult.Yes)
             {
                 position.Items.Remove(listBox3.SelectedItem);
                 positions.Remove((string)listBox3.SelectedItem);
@@ -742,6 +784,36 @@ namespace Roster_Test
             return (output);
         }
 
-        
+        private void roster_MouseDown(object sender, MouseEventArgs e)
+        {
+            ListBox roster = (ListBox)sender;
+            if (roster.SelectedItem == null) return;
+            roster.DoDragDrop(roster.SelectedItem, DragDropEffects.Move);
+        }
+
+        private void roster_DragOver(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Move;
+        }
+
+        private void roster_DragDrop(object sender, DragEventArgs e)
+        {
+            ListBox roster = (ListBox)sender;
+            Point point = roster.PointToClient(new Point(e.X, e.Y));
+            int index = roster.IndexFromPoint(point);
+            if (index < 0) index = roster.Items.Count - 1;
+            object data = e.Data.GetData(typeof(string));
+            roster.Items.Remove(data);
+            roster.Items.Insert(index, data);
+
+            string saveFile = roster.Name.ToString().Split('_')[0] + ".txt";
+
+            //Update days roster file
+            File.WriteAllText(saved_files_path + saveFile, "");
+            foreach (string shift in roster.Items)
+            {
+                write_data(saved_files_path + saveFile, shift);
+            }
+        }
     }
 }
