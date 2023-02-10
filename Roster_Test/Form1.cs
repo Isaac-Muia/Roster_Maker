@@ -5,7 +5,7 @@ namespace Roster_Test
 {
     public partial class Form1 : Form
     {
-        string saved_files_path = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "\\RosterMaker\\"; //Path where the files the program creates are saved
+        public static string saved_files_path = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "\\RosterMaker\\"; //Path where the files the program creates are saved
         public struct employee
         {
             public string name;
@@ -56,6 +56,15 @@ namespace Roster_Test
             sunday_roster.MouseDown += new MouseEventHandler(roster_MouseDown);
             sunday_roster.DragDrop += new DragEventHandler(roster_DragDrop);
             sunday_roster.DragOver += new DragEventHandler(roster_DragOver);
+
+            //Event handlers for editing shifts by double clicking
+            monday_roster.MouseDoubleClick += new MouseEventHandler(edit_shift);
+            tuesday_roster.MouseDoubleClick += new MouseEventHandler(edit_shift);
+            wednesday_roster.MouseDoubleClick += new MouseEventHandler(edit_shift);
+            thursday_roster.MouseDoubleClick += new MouseEventHandler(edit_shift);
+            friday_roster.MouseDoubleClick += new MouseEventHandler(edit_shift);
+            saturday_roster.MouseDoubleClick += new MouseEventHandler(edit_shift);
+            sunday_roster.MouseDoubleClick += new MouseEventHandler(edit_shift);
 
             if (!Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "\\RosterMaker"))
             {
@@ -661,7 +670,7 @@ namespace Roster_Test
         }
 
         ///Adds data to the file at path
-        public void write_data(string path, string data)
+        public static void write_data(string path, string data)
         {
             if (File.Exists(path))
             {
@@ -788,7 +797,11 @@ namespace Roster_Test
         {
             ListBox roster = (ListBox)sender;
             if (roster.SelectedItem == null) return;
-            roster.DoDragDrop(roster.SelectedItem, DragDropEffects.Move);
+            if (e.Button == MouseButtons.Left && e.Clicks == 1)
+            {
+                roster.DoDragDrop(roster.SelectedItem, DragDropEffects.Move);
+
+            }
         }
 
         private void roster_DragOver(object sender, DragEventArgs e)
@@ -809,6 +822,25 @@ namespace Roster_Test
             string saveFile = roster.Name.ToString().Split('_')[0] + ".txt";
 
             //Update days roster file
+            File.WriteAllText(saved_files_path + saveFile, "");
+            foreach (string shift in roster.Items)
+            {
+                write_data(saved_files_path + saveFile, shift);
+            }
+        }
+        ///Opens shift editor form on current shift
+        private void edit_shift(object sender, MouseEventArgs e)
+        {
+            ListBox roster = (ListBox)sender;
+            string shift = (string)roster.SelectedItem;
+            shift_editor newform = new shift_editor(shift,roster,employees);
+
+            newform.Show();
+        }
+
+        ///Updates roster file at savefile with current roster
+        public static void update_roster_file(string saveFile, ListBox roster)
+        {
             File.WriteAllText(saved_files_path + saveFile, "");
             foreach (string shift in roster.Items)
             {
