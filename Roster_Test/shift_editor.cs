@@ -18,19 +18,20 @@ namespace Roster_Test
         public string employee;
         public string start_time;
         public string finish_time;
-        string saveFile;
-        List<Form1.employee> employees;
+        string saveFile = "";
+        List<employee> employees;
+        string day;
 
         // initialy true to prevent combox index_changed methods from doing anythiny wien shift editor first loads
         bool initialf = true;
         bool initials = true;
-        bool initialp = true;
-        public shift_editor(string shift, ListBox roster, List<employee> employees)
+        public shift_editor(string shift, ListBox roster, List<employee> employees, string day)
         {
             InitializeComponent();
             this.shift = shift;
             this.roster = roster;
             this.employees = employees;
+            this.day = day;
 
             foreach(employee emp in employees)
             {
@@ -58,12 +59,30 @@ namespace Roster_Test
 
         private void FinishTime_SelectedIndexChanged(object sender, EventArgs e)
         {
-   
-                string newShift = employee + " " + start_time + "-" + FinishTime.Text;
-                roster.Items[roster.SelectedIndex] = newShift;
             if (!initialf)
             {
-                Form1.update_roster_file(saveFile, roster);
+                int finishHour = int.Parse(FinishTime.Text.Split(":")[0]);
+                int finishMinute = int.Parse(FinishTime.Text.Split(":")[1]);
+                employee emp = Form1.get_employee(Employee.Text);
+                if(emp.name == string.Empty)
+                {
+                    finish_time = FinishTime.Text;
+                    string newShift = employee + " " + start_time + "-" + finish_time;
+                    roster.Items[roster.SelectedIndex] = newShift;
+                    Form1.update_roster_file(saveFile, roster);
+                }
+               else if((int.Parse(emp.finishAvailabiity[day].Split(":")[0]) > finishHour | emp.finishAvailabiity[day] == "0:00") | int.Parse(emp.finishAvailabiity[day].Split(":")[0]) == finishHour & int.Parse(emp.finishAvailabiity[day].Split(":")[1]) >= finishMinute) 
+                    {
+                    finish_time = FinishTime.Text;
+                    string newShift = employee + " " + start_time + "-" + finish_time;
+                    roster.Items[roster.SelectedIndex] = newShift;
+                    Form1.update_roster_file(saveFile, roster);
+                }
+                else
+                {
+                    MessageBox.Show("Employee is not available at this time");
+                    FinishTime.Text = finish_time;
+                }
             }
             else
             {
@@ -74,12 +93,25 @@ namespace Roster_Test
 
         private void StartTime_SelectedIndexChanged(object sender, EventArgs e)
         {
-            
-            string newShift = employee + " " + StartTime.Text + "-" + finish_time;
-            roster.Items[roster.SelectedIndex] = newShift;
+           
             if (!initials)
             {
-                Form1.update_roster_file(saveFile, roster);
+                int startHour = int.Parse(StartTime.Text.Split(":")[0]);
+                int startMinute = int.Parse(StartTime.Text.Split(":")[1]);
+                employee emp = Form1.get_employee(Employee.Text);
+                if (int.Parse(emp.startAvailabiity[day].Split(":")[0]) <= startHour & (int.Parse(emp.startAvailabiity[day].Split(":")[1]) <= startMinute | int.Parse(emp.startAvailabiity[day].Split(":")[0]) != startHour))
+                {
+                    start_time = StartTime.Text;
+                    string newShift = employee + " " + start_time + "-" + finish_time;
+                    roster.Items[roster.SelectedIndex] = newShift;
+                    Form1.update_roster_file(saveFile, roster);
+                }
+
+                else
+                {
+                    MessageBox.Show("Employee is not available at this time");
+                    StartTime.Text = start_time;
+                }
             }
             else
             {
@@ -90,19 +122,36 @@ namespace Roster_Test
         
 
         private void Employee_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            
-            string newShift = Employee.Text + " " + start_time + "-" + finish_time;
-            roster.Items[roster.SelectedIndex] = newShift;
-            if (!initialp)
-            {
-                Form1.update_roster_file(saveFile, roster);
-            }
-            else
-            {
-                initialp = false;
-            }
+        {   
+                int startHour = int.Parse(StartTime.Text.Split(":")[0]);
+                int startMinute = int.Parse(StartTime.Text.Split(":")[1]);
+                int finishHour = int.Parse(FinishTime.Text.Split(":")[0]);
+                int finishMinute = int.Parse(FinishTime.Text.Split(":")[1]);
+                employee emp = Form1.get_employee(Employee.Text);
+                if (emp.startAvailabiity[day] != "N/A")
+                {
+                    if ((int.Parse(emp.startAvailabiity[day].Split(":")[1]) <= startMinute | int.Parse(emp.startAvailabiity[day].Split(":")[0]) != startHour) & (int.Parse(emp.startAvailabiity[day].Split(":")[0]) <= startHour & (int.Parse(emp.finishAvailabiity[day].Split(":")[0]) > finishHour | emp.finishAvailabiity[day] == "0:00") | int.Parse(emp.finishAvailabiity[day].Split(":")[0]) == finishHour & int.Parse(emp.finishAvailabiity[day].Split(":")[1]) >= finishMinute))
+                    {
+                        employee = Employee.Text;
+                        string newShift = employee + " " + start_time + "-" + finish_time;
+                        roster.Items[roster.SelectedIndex] = newShift;
+                    if (saveFile != "")
+                    {
+                        Form1.update_roster_file(saveFile, roster);
+                    }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Employee is not available at this time");
+                        Employee.Text = employee;
+                    }
 
+                }
+                else
+                {
+                    MessageBox.Show("Employee not available that day");
+                    Employee.Text = employee;
+                }
         }
     }
 }

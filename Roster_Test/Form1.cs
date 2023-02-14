@@ -17,7 +17,7 @@ namespace Roster_Test
             public int maxHours;
         }
 
-        List<employee> employees = new List<employee>();
+        static List<employee> employees = new List<employee>();
         List<String> positions = new List<String>();
 
         public Form1()
@@ -122,7 +122,7 @@ namespace Roster_Test
                 comboBox3.Show();
                 label14.Show();
                 listBox2.Show();
-                employee emp = get_employee();
+                employee emp = get_employee((string)listBox1.SelectedItem);
                 label6.Text = emp.position;
                 //If not available check not available checkbox otherwise uncheck
                 if (checkBox1.Visible)
@@ -175,7 +175,7 @@ namespace Roster_Test
         private void button3_Click(object sender, EventArgs e)
         {
             //Delete employee off employees list
-            employee emp = get_employee();
+            employee emp = get_employee((string)listBox1.SelectedItem);
             employees.Remove(emp);
             update_employees_data();
 
@@ -203,7 +203,7 @@ namespace Roster_Test
             label1.Show();
 
             //Show availability for that day
-            employee emp = get_employee();
+            employee emp = get_employee((string)listBox1.SelectedItem);
             //If not available check not available checkbox otherwise uncheck
             checkBox1.Checked = emp.startAvailabiity[listBox2.Text] == "N/A";
             comboBox1.Text = emp.startAvailabiity[listBox2.Text];
@@ -216,7 +216,7 @@ namespace Roster_Test
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             //Get chosen employee
-            employee emp = get_employee();
+            employee emp = get_employee((string)listBox1.SelectedItem);
 
             //Update availability
             emp.startAvailabiity[listBox2.Text] = comboBox1.Text;
@@ -227,7 +227,7 @@ namespace Roster_Test
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
             //Get chosen employee
-            employee emp = get_employee();
+            employee emp = get_employee((string)listBox1.SelectedItem);
 
             //Update availability
             emp.finishAvailabiity[listBox2.Text] = comboBox2.Text;
@@ -243,7 +243,7 @@ namespace Roster_Test
         ///Not available checkbox
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            employee emp = get_employee();
+            employee emp = get_employee((string)listBox1.SelectedItem);
 
             //Update availability
             if (checkBox1.Checked)
@@ -476,8 +476,8 @@ namespace Roster_Test
 
         private void comboBox3_SelectedIndexChanged(object sender, EventArgs e)
         {
-            employee Originalemp = get_employee();
-            employee emp = get_employee();
+            employee Originalemp = get_employee((string)listBox1.SelectedItem);
+            employee emp = get_employee((string)listBox1.SelectedItem);
             string maxHours = comboBox3.Text;
             if (maxHours == "Unlimited")
             {
@@ -647,7 +647,7 @@ namespace Roster_Test
         }
 
         ///Returns the employee that the user has selected on the employee listbox
-        public employee get_employee()
+        public static employee get_employee(string employee_name)
         {
 
             employee output;
@@ -661,7 +661,7 @@ namespace Roster_Test
 
             foreach (employee emp in employees)
             {
-                if (emp.name == listBox1.SelectedItem.ToString())
+                if (emp.name == employee_name)
                 {
                     return (emp);
                 }
@@ -832,10 +832,38 @@ namespace Roster_Test
         private void edit_shift(object sender, MouseEventArgs e)
         {
             ListBox roster = (ListBox)sender;
-            string shift = (string)roster.SelectedItem;
-            shift_editor newform = new shift_editor(shift,roster,employees);
+            if (roster.SelectedItem != null)
+            {
+                string shift = (string)roster.SelectedItem;
+                string day = "";
+                switch (roster.Name)
+                {
+                    case "monday_roster":
+                        day = "Monday";
+                        break;
+                    case "tuesday_roster":
+                        day = "Tuesday";
+                        break;
+                    case "wednesday_roster":
+                        day = "Wednesday";
+                        break;
+                    case "thursday_roster":
+                        day = "Thursday";
+                        break;
+                    case "friday_roster":
+                        day = "Friday";
+                        break;
+                    case "saturday_roster":
+                        day = "Saturday";
+                        break;
+                    case "sunday_roster":
+                        day = "Sunday";
+                        break;
+                }
+                shift_editor newform = new shift_editor(shift, roster, employees, day);
 
-            newform.Show();
+                newform.Show();
+            }
         }
 
         ///Updates roster file at savefile with current roster
