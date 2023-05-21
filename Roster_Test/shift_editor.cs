@@ -64,7 +64,24 @@ namespace Roster_Test
                 int finishHour = int.Parse(FinishTime.Text.Split(":")[0]);
                 int finishMinute = int.Parse(FinishTime.Text.Split(":")[1]);
                 employee emp = Form1.get_employee(Employee.Text);
-                if(emp.name == string.Empty)
+                bool notPosition = true;
+                foreach (employee em in employees)
+                {
+                    if (em.name == employee)
+                    {
+                        notPosition = false;
+                        break;
+                    }
+                }
+                if (notPosition)
+                {
+                    finish_time = FinishTime.Text;
+                    string newShift = employee + " " + start_time + "-" + finish_time;
+                    roster.Items[roster.SelectedIndex] = newShift;
+                    Form1.update_roster_file(saveFile, roster);
+                    return;
+                }
+                if (emp.name == string.Empty)
                 {
                     finish_time = FinishTime.Text;
                     string newShift = employee + " " + start_time + "-" + finish_time;
@@ -93,12 +110,27 @@ namespace Roster_Test
 
         private void StartTime_SelectedIndexChanged(object sender, EventArgs e)
         {
-           
             if (!initials)
             {
                 int startHour = int.Parse(StartTime.Text.Split(":")[0]);
                 int startMinute = int.Parse(StartTime.Text.Split(":")[1]);
                 employee emp = Form1.get_employee(Employee.Text);
+                bool notPosition = true;
+                foreach (employee em in employees){
+                    if(em.name == employee)
+                    {
+                        notPosition = false;
+                        break;
+                    }
+                }
+                if (notPosition)
+                {
+                    start_time = StartTime.Text;
+                    string newShift = employee + " " + start_time + "-" + finish_time;
+                    roster.Items[roster.SelectedIndex] = newShift;
+                    Form1.update_roster_file(saveFile, roster);
+                    return;
+                }
                 if (int.Parse(emp.startAvailabiity[day].Split(":")[0]) <= startHour & (int.Parse(emp.startAvailabiity[day].Split(":")[1]) <= startMinute | int.Parse(emp.startAvailabiity[day].Split(":")[0]) != startHour))
                 {
                     start_time = StartTime.Text;
@@ -106,7 +138,6 @@ namespace Roster_Test
                     roster.Items[roster.SelectedIndex] = newShift;
                     Form1.update_roster_file(saveFile, roster);
                 }
-
                 else
                 {
                     MessageBox.Show("Employee is not available at this time");
@@ -145,7 +176,6 @@ namespace Roster_Test
                         MessageBox.Show("Employee is not available at this time");
                         Employee.Text = employee;
                     }
-
                 }
                 else
                 {

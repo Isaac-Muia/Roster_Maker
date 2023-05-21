@@ -1,5 +1,6 @@
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 using System.Windows.Forms;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Roster_Test
 {
@@ -17,9 +18,16 @@ namespace Roster_Test
             public int maxHours;
         }
 
+
         static List<employee> employees = new List<employee>();
         List<String> positions = new List<String>();
+        public static string? earliestStart;
+        public static string? latestFinish;
 
+        public static List<String> times = new List<String>() {"0,00","0:30","1:00","1:30","2:00","2:30","3:00","3:30","4:00","4:30","5:00","5:30","6:00","6:30","7:00","7:30","8:00","8:30","9:00","9:30","10:00","10:30","11:00","11:30","12:00",
+                                        "12:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30","20:00","20:30","21:00","21:30","22:00","22:30","23:00","23:30","24:00"};
+
+        public static List<String> shifttimes = new List<String>();
         public Form1()
         {
             InitializeComponent();
@@ -66,11 +74,26 @@ namespace Roster_Test
             saturday_roster.MouseDoubleClick += new MouseEventHandler(edit_shift);
             sunday_roster.MouseDoubleClick += new MouseEventHandler(edit_shift);
 
+            //Open settings on double click
+            Settings.MouseDoubleClick += new MouseEventHandler(open_settings);
+
             if (!Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "\\RosterMaker"))
             {
                 Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "\\RosterMaker");
             }
-            
+      
+            // Get start and end times of buisness
+            if (File.Exists(saved_files_path + "times.txt"))
+            {
+                update_times();
+            }
+            else
+            {
+                earliestStart = "8:00";
+                latestFinish = "6:00";
+                write_data(saved_files_path + "times.txt", earliestStart + "\n" + latestFinish);
+                update_times();
+            }
             // Get saved positons
             if (File.Exists(saved_files_path + "positions.txt"))
             {
@@ -159,8 +182,8 @@ namespace Roster_Test
                 listBox1.Items.Add(textBox1.Text);
                 employee newEmployee;
                 newEmployee.name = textBox1.Text;
-                newEmployee.startAvailabiity = new Dictionary<string, string>() { { "Monday", "10:00" }, { "Tuesday", "10:00" }, { "Wednesday", "10:00" }, { "Thursday", "10:00" }, { "Friday", "10:00" }, { "Saturday", "10:00" }, { "Sunday", "10:00" } };
-                newEmployee.finishAvailabiity = new Dictionary<string, string>() { { "Monday", "0:00" }, { "Tuesday", "0:00" }, { "Wednesday", "0:00" }, { "Thursday", "0:00" }, { "Friday", "0:00" }, { "Saturday", "0:00" }, { "Sunday", "0:00" } };
+                newEmployee.startAvailabiity = new Dictionary<string, string>() { { "Monday", earliestStart }, { "Tuesday", earliestStart }, { "Wednesday", earliestStart }, { "Thursday", earliestStart }, { "Friday", earliestStart }, { "Saturday", earliestStart }, { "Sunday", earliestStart } };
+                newEmployee.finishAvailabiity = new Dictionary<string, string>() { { "Monday", latestFinish }, { "Tuesday", latestFinish }, { "Wednesday", latestFinish }, { "Thursday", latestFinish }, { "Friday", latestFinish }, { "Saturday", latestFinish }, { "Sunday", latestFinish } };
                 newEmployee.shifts = new Dictionary<string, bool>() { { "Monday", false }, { "Tuesday", false }, { "Wednesday", false }, { "Thursday", false }, { "Friday", false }, { "Saturday", false }, { "Sunday", false } };
                 newEmployee.position = listBox3.Text;
                 newEmployee.hours = new Dictionary<string, double>() { { "Monday", 0 }, { "Tuesday", 0 }, { "Wednesday", 0 }, { "Thursday", 0 }, { "Friday", 0 }, { "Saturday", 0 }, { "Sunday", 0 } };
@@ -253,8 +276,8 @@ namespace Roster_Test
             }
             else
             {
-                emp.startAvailabiity[listBox2.Text] = "10:00";
-                emp.finishAvailabiity[listBox2.Text] = "0:00";
+                emp.startAvailabiity[listBox2.Text] = earliestStart;
+                emp.finishAvailabiity[listBox2.Text] = latestFinish;
             }
             comboBox1.Text = emp.startAvailabiity[listBox2.Text];
             comboBox2.Text = emp.finishAvailabiity[listBox2.Text];
@@ -587,7 +610,7 @@ namespace Roster_Test
                             {
                                 if (int.Parse(emp.startAvailabiity[day].Split(":")[1]) <= startMinute | int.Parse(emp.startAvailabiity[day].Split(":")[0]) != startHour)
                                 {
-                                    if (int.Parse(emp.finishAvailabiity[day].Split(":")[0]) > finishHour | emp.finishAvailabiity[day] == "0:00")
+                                    if (int.Parse(emp.finishAvailabiity[day].Split(":")[0]) > finishHour | emp.finishAvailabiity[day] == latestFinish)
                                     {
                                         shifts.Add(shift.Replace(shift_position, emp.name));
                                         shifts_to_assign.Add(k);
@@ -875,5 +898,36 @@ namespace Roster_Test
                 write_data(saved_files_path + saveFile, shift);
             }
         }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+        }
+        //Settings
+        private void open_settings(object sender, EventArgs e)
+        {
+            Settings settingsform = new Settings(earliestStart, latestFinish, saved_files_path + "times.txt");
+            settingsform.Show();
+        }
+
+        public static void update_times()
+        {
+            string[] saved_positions = File.ReadAllLines(saved_files_path + "times.txt");
+            earliestStart = saved_positions[0];
+            latestFinish = saved_positions[1];
+            shifttimes.Clear();
+            for (int i = times.IndexOf(earliestStart); i <= times.IndexOf(latestFinish); i++)
+            {
+                shifttimes.Add(times[i]);
+
+            }
+            comboBox1.Items.Clear();
+            comboBox2.Items.Clear();
+            foreach (String time in shifttimes)
+            {
+                comboBox1.Items.Add(time);
+                comboBox2.Items.Add(time);
+            }
+        }
+
     }
 }
