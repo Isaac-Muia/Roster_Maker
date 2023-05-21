@@ -81,7 +81,7 @@ namespace Roster_Test
             {
                 Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "\\RosterMaker");
             }
-      
+
             // Get start and end times of buisness
             if (File.Exists(saved_files_path + "times.txt"))
             {

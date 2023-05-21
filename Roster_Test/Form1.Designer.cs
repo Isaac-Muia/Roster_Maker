@@ -718,7 +718,7 @@
             Controls.Add(textBox1);
             Margin = new Padding(3, 2, 3, 2);
             Name = "Form1";
-            Text = "Form1";
+            Text = "Roster Maker";
             Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)Settings).EndInit();
             ResumeLayout(false);
@@ -732,8 +732,6 @@
         private Button button1;
         private ListBox listBox2;
         private CheckBox checkBox1;
-        private static ComboBox comboBox1;
-        private static  ComboBox comboBox2;
         private Label label1;
         private Button button3;
         private TextBox textBox2;
@@ -783,5 +781,7 @@
         private Label label22;
         private ComboBox comboBox3;
         private PictureBox Settings;
+        private static ComboBox comboBox1;
+        private static ComboBox comboBox2;
     }
 }

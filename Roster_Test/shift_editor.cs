@@ -22,7 +22,7 @@ namespace Roster_Test
         List<employee> employees;
         string day;
 
-        // initialy true to prevent combox index_changed methods from doing anythiny wien shift editor first loads
+        // initialy true to prevent combboox index_changed methods from doing anything when shift editor first loads
         bool initialf = true;
         bool initials = true;
         public shift_editor(string shift, ListBox roster, List<employee> employees, string day)
@@ -32,6 +32,7 @@ namespace Roster_Test
             this.roster = roster;
             this.employees = employees;
             this.day = day;
+            
 
             foreach(employee emp in employees)
             {
@@ -46,6 +47,14 @@ namespace Roster_Test
             Employee.Text = employee;
             roster.Items[roster.SelectedIndex] = employee + " " + start_time + "-" + finish_time;
             saveFile = roster.Name.ToString().Split('_')[0] + ".txt";
+            StartTime.Items.Clear();
+            FinishTime.Items.Clear();
+            foreach (String time in Form1.shifttimes)
+            {
+                StartTime.Items.Add(time);
+                FinishTime.Items.Add(time);
+            }
+
         }
 
         ///Delete shift
