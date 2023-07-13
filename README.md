@@ -1,5 +1,5 @@
 # Roster_Maker
-A windows .NET form applicaiton for creating a workplace roster
+A windows .NET form applicaiton for creating and automatically assigning a workplace roster
 
 ## How to run
 Go to Roster_Maker\Roster_Test\bin\Debug\net6.0-windows
