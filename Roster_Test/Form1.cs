@@ -31,6 +31,9 @@ namespace Roster_Test
         public Form1()
         {
             InitializeComponent();
+            LoadForm();
+        }
+        public void LoadForm() {
             ///Event handler for deleting positions of position ListBox
             listBox3.MouseDoubleClick += new MouseEventHandler(listBox3_DoubleClick);
 
@@ -81,7 +84,9 @@ namespace Roster_Test
             {
                 Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "\\RosterMaker");
             }
-
+            if (!Directory.Exists(saved_files_path + "\\saves")){
+                Directory.CreateDirectory(saved_files_path + "\\saves");
+            }
             // Get start and end times of buisness
             if (File.Exists(saved_files_path + "times.txt"))
             {
@@ -97,6 +102,15 @@ namespace Roster_Test
             // Get saved positons
             if (File.Exists(saved_files_path + "positions.txt"))
             {
+                listBox1.Items.Clear();
+                listBox3.Items.Clear(); 
+                monday_roster.Items.Clear();
+                tuesday_roster.Items.Clear();
+                wednesday_roster.Items.Clear();
+                thursday_roster.Items.Clear();
+                friday_roster.Items.Clear();
+                saturday_roster.Items.Clear();
+                sunday_roster.Items.Clear();
                 string[] saved_positions = File.ReadAllLines(saved_files_path + "positions.txt");
                 foreach (string pos in saved_positions)
                 {
@@ -905,7 +919,7 @@ namespace Roster_Test
         //Settings
         private void open_settings(object sender, EventArgs e)
         {
-            Settings settingsform = new Settings(earliestStart, latestFinish, saved_files_path + "times.txt");
+            Settings settingsform = new Settings(earliestStart, latestFinish, saved_files_path);
             settingsform.Show();
         }
 
