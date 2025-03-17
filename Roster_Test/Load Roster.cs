@@ -4,9 +4,11 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace Roster_Test
 {
@@ -30,6 +32,7 @@ namespace Roster_Test
             string[] filesToDelete = Directory.GetFiles(saveFolder);
             foreach (string file in filesToDelete)
             {
+
                 File.Delete(file);
             }
             foreach (string file in files)

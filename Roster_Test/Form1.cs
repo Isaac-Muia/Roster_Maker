@@ -80,6 +80,18 @@ namespace Roster_Test
             //Open settings on double click
             Settings.MouseDoubleClick += new MouseEventHandler(open_settings);
 
+            comboBox1.Hide();
+            comboBox2.Hide();
+            label1.Hide();
+            button3.Hide();
+            label5.Hide();
+            label6.Hide();
+            comboBox3.Hide();
+            label14.Hide();
+            listBox2.Hide();
+            label4.Hide();
+
+
             if (!Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "\\RosterMaker"))
             {
                 Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "\\RosterMaker");
@@ -234,7 +246,6 @@ namespace Roster_Test
         ///Weekday selector
         private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
-            checkBox1.Show();
             comboBox1.Show();
             comboBox2.Show();
             label1.Show();
@@ -916,11 +927,31 @@ namespace Roster_Test
         private void pictureBox1_Click(object sender, EventArgs e)
         {
         }
+
         //Settings
         private void open_settings(object sender, EventArgs e)
         {
-            Settings settingsform = new Settings(earliestStart, latestFinish, saved_files_path);
-            settingsform.Show();
+            FormCollection fc = Application.OpenForms;
+            bool settingsOpen = false;
+            Form settings = null;
+            foreach (Form frm in fc)
+            {
+                if (frm.Name == "Settings Form")
+                {
+                    settings = frm;
+                    settingsOpen = true;
+                }
+            }
+            if (!settingsOpen)
+            {
+                Settings settingsform = new Settings(earliestStart, latestFinish, saved_files_path);
+                settingsform.Name = "Settings Form";    
+                settingsform.Show();
+            }
+            else
+            {
+                settings.Activate();
+            }
         }
 
         public static void update_times()
@@ -929,11 +960,27 @@ namespace Roster_Test
             earliestStart = saved_positions[0];
             latestFinish = saved_positions[1];
             shifttimes.Clear();
-            for (int i = times.IndexOf(earliestStart); i <= times.IndexOf(latestFinish); i++)
+            if (times.IndexOf(earliestStart) <= times.IndexOf(latestFinish))
             {
-                shifttimes.Add(times[i]);
+                for (int i = times.IndexOf(earliestStart); i <= times.IndexOf(latestFinish); i++)
+                {
+                    shifttimes.Add(times[i]);
 
+                }
             }
+            else
+            {
+                foreach(string time in times)
+                {
+                    shifttimes.Add(time);
+                }
+               
+                for (int i = times.IndexOf(latestFinish) + 1; i <= times.IndexOf(earliestStart); i++)
+                {
+                    shifttimes.Remove(times[i]);
+                }
+            }
+        
             comboBox1.Items.Clear();
             comboBox2.Items.Clear();
             foreach (String time in shifttimes)
